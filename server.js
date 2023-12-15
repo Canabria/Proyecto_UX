@@ -1,13 +1,36 @@
-/* eslint-disable quotes */
-/* eslint-disable prettier/prettier */
+/* eslint-disable quotes *//* eslint-disable prettier/prettier */
 const express = require('express');
 const path = require('path'); 
 const {initializeApp} = require("firebase/app");
-const {getAnalytics} = require("firebase/analytics");
+//const {getAnalytics} = require("firebase/analytics");
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const {getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification} = require("firebase/auth");
 
+//MONGODB
+const { MongoClient, ServerApiVersion } = require('mongodb');
+const uri = "mongodb+srv://emicantarero:Hernandez09@examenux.aotz8sy.mongodb.net/?retryWrites=true&w=majority";
+const client = new MongoClient(uri, {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      strict: true,
+      deprecationErrors: true,
+    }
+});
+
+async function run() {
+    try {
+      // Connect the client to the server	(optional starting in v4.7)
+      await client.connect();
+      // Send a ping to confirm a successful connection
+      await client.db("admin").command({ ping: 1 });
+      console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    } finally {
+      // Ensures that the client will close when you finish/error
+      await client.close();
+    }
+}
+run().catch(console.dir);
 
 const firebaseConfig = {
   apiKey: "AIzaSyC_TOxCLusY9MoIE3-oQQsOrDrYmRK-hnA",
@@ -102,6 +125,79 @@ servidor.post("/signOut",  (res) => {
   });
 });
 
+servidor.get('/listClientes', async (req, res)=>{
+  try {
+      const client = new MongoClient(uri);
+      const mainDB = client.db("test");
+      const Post = mainDB.collection("clientes");
+      const query = {};
+      const options = {
+          sort: {},
+      };
+      const cursor = Post.find(query, options);
+      if ((await Post.countDocuments(query)) === 0) {
+          res.status(500).send("No se encontraron Clientes")
+      }else{
+          let arr = []
+          for await (const doc of cursor) {
+              console.dir(doc);
+              arr.push(doc)
+          }
+          res.status(200).send({
+              documentos: arr,
+          });
+      }
+      
+  } catch(error){
+      res.status(500).send("Algo salio mal")
+      console.log(error);
+  }finally {
+      await client.close();
+  } 
+  run().catch(console.dir);
+})
 
+servidor.put('/editCliente', async (req, res)=>{
+  try {
+      const client = new MongoClient(uri);
+      const mainDB = client.db("test");
+      const Post = mainDB.collection("clientes");
+      const filter = {correo: req.body.correo};
+      const options = { upsert: false };
+      const updateDoc = {
+          $set: {
+          favorito: req.body.favorito,
+        },
+      };
+      const result = await Post.updateOne(filter, updateDoc, options);
+      console.log(
+          `${result.matchedCount} documento cumplio con las caracteristicas establecidas, se actualizaron ${result.modifiedCount} documento(s)`,
+       );
+      res.status(200).send("El post se actualizo correctamente");
+      //res.status(200).send(`${result.matchedCount} documento cumplio con las caracteristicas establecidas, se actualizaron ${result.modifiedCount} documento(s)`);
+  }catch(error){
+      res.status(500).send("Algo salio mal, no se pudo actualizar el cliente")
+      console.log(error);
+  }finally {
+      await client.close();
+  } 
+  run().catch(console.dir);
+})
 
-
+servidor.post('/createCliente', async (req, res)=>{
+  try {
+      const client = new MongoClient(uri);
+      const mainDB = client.db("test");
+      const Post = mainDB.collection("clientes");
+      const doc = req.body;
+      const result = await Post.insertOne(doc);
+      console.log(
+          `Se inserto un documento con el _id: ${result.insertedId}`,
+      );
+      res.status(200).send("El Cliente se creo exitosamente")
+  } catch(error){
+      res.status(500).send("No se creo el Cliente, algo salio mal")
+  }finally {
+      await client.close();
+  }
+})
