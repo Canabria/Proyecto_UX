@@ -73,6 +73,27 @@ form{
   padding-bottom: 30px;
   border-radius: 3px;
 }
+.APP{
+  background-color: #282c34;
+  text-align: center;
+}
+.APP h1{
+  font-size: 42px;
+  color: ghostwhite;
+}
+.main_page{
+  background-color: #282c34;
+  text-align: left;
+}
+.Alojamiento{
+  background-color: #282c34;
+}
+.Favoritos{
+  background-color: #282c34;
+}
+.Resarvados{
+  background-color: #282c34;
+}
 .btn-submit{
    width: 50%;
    background: #F58141;
@@ -82,7 +103,16 @@ form{
    padding: 15px 0;
    margin: 15px;
   }
-
+.btn-logout{
+  width: 50%;
+   background: #F58141;
+   font-size: 16px;
+   border:none;
+   color:#fff;
+   padding: 15px 0;
+   margin: 15px;
+   align-self:flex-end;
+}
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
