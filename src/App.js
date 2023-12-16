@@ -5,6 +5,7 @@ import axios from 'axios';
 const App = () => {
   const [alojamientos, setAlojamientos] = useState([]);
   const [resultadosFavoritos, setResultadosFavoritos] = useState([]);
+  const [resultadosRes, setResultadosRes] = useState([]);
   const [isnotlog, setisnotlog] = useState(true);
   const [reg, setreg] = useState(false);
   const [Email, setEmail] = useState('');
@@ -308,7 +309,7 @@ const App = () => {
                 <section className='Resarvados'>
                   <h3>Alojamientos Reservados</h3>
                   {alojamientos
-                    .filter((alojamiento) => alojamiento.currentOwner !== '')
+                    .filter((alojamiento) => alojamiento.currentOwner === Email)
                     .map((alojamiento) => (
                       <div key={alojamiento.id} className='alojamiento-item'>
                         <p><img src={alojamiento.imagen} alt='' className='imga'></img></p>
