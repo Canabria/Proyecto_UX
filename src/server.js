@@ -1,4 +1,4 @@
-/*eslint-disable quotes *//* eslint-disable prettier/prettier */
+/*eslint-disable quotes*/
 const express = require('express');
 const path = require('path'); 
 const {initializeApp} = require("firebase/app");

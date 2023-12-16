@@ -110,9 +110,32 @@ const App = () => {
   
       const data = response.data;
       console.log(data);
-  
+      let favorito = "";
       if (data.msg === 'Usuario creado exitosamente') {
         alert('Registro exitoso');
+        try{
+          const response = await axios.post(
+            'http://localhost:3001/createCliente',
+            `email=${encodeURIComponent(EmailR)}&password=${encodeURIComponent(PassR)}&favorito=${encodeURIComponent(favorito)}`,
+            {
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+            }
+          );
+          const data = response.data;
+          console.log(data);
+        } catch (error) {
+          console.error('Error al registrar usuario en mongo:', error);
+          console.error(error);
+          if (error.response) {
+            alert(`Error del servidor: ${error.response.status}`);
+          } else if (error.request) {
+            alert('No se recibió respuesta del servidor.');
+          } else {
+            alert('Error desconocido al registrar usuario.');
+          }
+        }
       } else {
         alert('Error al registrar usuario.');
       }
@@ -136,10 +159,15 @@ const App = () => {
     setRes(false);
   };
   const buscarAlojamientosFavoritos = () => {
+    let vacio = "";
     const resultados = alojamientos.filter(
       (alojamiento) => alojamiento.tipo.toLowerCase() === FavT.toLowerCase()
     );
     setResultadosFavoritos(resultados);
+    const resultados2 = resultados.filter(
+      (alojamiento) => alojamiento.currentOwner === vacio
+    );
+    setResultadosFavoritos(resultados2);
   };
   const Favoritos = () => {
     setAloja(false);
@@ -158,25 +186,28 @@ const App = () => {
   };
   
   const Reservados2 = async (calle, numero) => {
+    console.log(typeof calle)
+    console.log(typeof numero)
     try {
       // Hacer la reserva
       const response = await axios.put(
         'http://localhost:3001/updateAirbnb',
+        `calle=${encodeURIComponent(calle)}&numero=${encodeURIComponent(numero)}&currentOwner=${encodeURIComponent(Email)}`,
         {
-          calle: calle,
-          numero: numero,
-          currentOwner: Email,
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
         }
       );
   
       const data = response.data;
       console.log(data);
   
-      if (data.msg === 'Se actualizó la información correctamente') {
-        alert('Reserva realizada con éxito.');
+      if (data.msg === 'No se pudo actualizar la información') {
+        alert('Error al realizar la reserva.');
         // actualizar la lista de alojamientos aquí si es necesario
       } else {
-        alert('Error al realizar la reserva.');
+        alert('Reserva realizada con éxito.');
       }
     } catch (error) {
       console.error('Error al hacer la reserva:', error);
@@ -234,7 +265,7 @@ const App = () => {
                     <p>Calle: {alojamiento.calle}</p>
                     <p>Numero de calle: {alojamiento.numero}</p>
                     <p>Actual Dueño: {alojamiento.currentOwner}</p>
-                    <p>Reservado: {alojamiento.reservado ? 'Sí' : 'No'}</p>
+                    <p>Reservado: {alojamiento.currentOwner ? 'Sí' : 'No'}</p>
                     
                   </div>
                 ))}
@@ -264,7 +295,7 @@ const App = () => {
                       <p>Calle: {alojamiento.calle}</p>
                       <p>Numero de calle: {alojamiento.numero}</p>
                       <p>Actual Dueño: {alojamiento.currentOwner}</p>
-                      <p>Reservado: {alojamiento.reservado ? 'Sí' : 'No'}</p>
+                      <p>Reservado: {alojamiento.currentOwner ? 'Sí' : 'No'}</p>
                       <p><button className="btn-submit" onClick={() => Reservados2(alojamiento.calle, alojamiento.numero)}>Hacer reserva</button></p>
                     </div>
                   ))}
@@ -286,7 +317,7 @@ const App = () => {
                         <p>Calle: {alojamiento.calle}</p>
                         <p>Numero de calle: {alojamiento.numero}</p>
                         <p>Actual Dueño: {alojamiento.currentOwner}</p>
-                        <p>Reservado: {alojamiento.reservado ? 'Sí' : 'No'}</p>
+                        <p>Reservado: {alojamiento.currentOwner ? 'Sí' : 'No'}</p>
                       </div>
                     ))}
                 </section>
